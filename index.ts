@@ -44,14 +44,13 @@ const listTasks = (): void => {
             => NO EXISTEN TAREAS para MOSTRAR!!!
         ==================================================`)
     } else {
+        console.log('        ==================================================');
+        console.log('               LISTADO DE TAREAS REGISTRADAS:');
         tasks.map((task: Task) => {
             const { id, title, completed } = task;
-            console.log('        ==================================================');
-            console.log('               LISTADO DE TAREAS REGISTRADAS:');
-
             console.log(`         [${id}] ${title} - ${completed ? 'Completed' : 'Pending'}`);
-            console.log('        ==================================================');
         })
+        console.log('        ==================================================');
     }
 }
 
@@ -64,9 +63,10 @@ const removeTask = (): void => {
         ==================================================`)
     } else {
         const delTask: Task = tasks.pop()!
+        const { id, title, completed } = delTask;
         console.log(`
         ==================================================
-            [${delTask.id}] ${delTask.title} - ${delTask.completed}
+            [${id}] ${title} - ${completed ? 'Completed' : 'Pending'}
                     ¡Esta tarea, Fue ELIMINADA!
         ==================================================`);
     }
@@ -75,8 +75,13 @@ const removeTask = (): void => {
 // ArrowFunction para Marcar como 'completed'
 const markCompleted = (id: number) => {
     const taskFind: Task | undefined = tasks.find((t: Task) => t.id === id);
+    console.clear()
     if (taskFind !== undefined) {
         taskFind.completed = true
+        console.log(`
+        ==================================================
+            => Tarea con ID = ${id}. Esta Completada.
+        ==================================================`)
     } else {
         console.log(`
         ==================================================
@@ -89,14 +94,13 @@ const markCompleted = (id: number) => {
 const filterPending = () => {
     const taskPending: Task[] = tasks.filter((t: Task) => t.completed === false);
     if (taskPending.length !== 0) {
+        console.log('        ==================================================');
+        console.log('               LISTADO DE TAREAS PENDIENTES:');
         taskPending.map((task: Task) => {
             const { id, title, completed } = task;
-            console.log('        ==================================================');
-            console.log('               LISTADO DE TAREAS REGISTRADAS:');
-
             console.log(`         [${id}] ${title} - ${completed ? 'Completed' : 'Pending'}`);
-            console.log('        ==================================================');
         })
+        console.log('        ==================================================');
     } else {
         console.log(`
         ==================================================
@@ -107,16 +111,15 @@ const filterPending = () => {
 
 // ArrowFunction para Retornar todas las tareas con estado 'completed'
 const filterCompleted = () => {
-    const tasksComplete: Task[] = tasks.filter((t: Task) => t.completed === false);
+    const tasksComplete: Task[] = tasks.filter((t: Task) => t.completed === true);
     if (tasksComplete.length !== 0) {
+        console.log('        ==================================================');
+        console.log('               LISTADO DE TAREAS COMPLETADAS:');
         tasksComplete.map((task: Task) => {
             const { id, title, completed } = task;
-            console.log('        ==================================================');
-            console.log('               LISTADO DE TAREAS REGISTRADAS:');
-
             console.log(`         [${id}] ${title} - ${completed ? 'Completed' : 'Pending'}`);
-            console.log('        ==================================================');
         })
+        console.log('        ==================================================');
     } else {
         console.log(`
         ==================================================
