@@ -1,5 +1,6 @@
 import readline from 'readline/promises';
 import { stdin as input, stdout as output } from 'process';
+import { error } from 'console';
 
 const rl = readline.createInterface({ input, output });
 // 🚫 No eliminar las líneas de arriba ⬆️
@@ -23,17 +24,26 @@ let count: number = 1;
 let ongoing: boolean = true;
 
 // ArrowFunction para Agregar una tarea
-const AddTask = (title: string): void => {
-    tasks.push({
-        'id': count++,
-        'title': title,
-        'completed': false
-    })
-    console.clear()
-    console.log(`
+const AddTask = async (title: string) => {
+    try {
+        if (title !== '') {
+            tasks.push({
+                'id': count++,
+                'title': title,
+                'completed': false
+            })
+            console.clear()
+            await saveToDB()
+        } else {
+            throw new Error('¡No ingreso ninguna tarea!')
+        }
+    } catch (e) {
+        console.clear()
+        console.log(`
         ==================================================
-            => La tarea fue GUARDADA correctamente!
+               ❌ ${e}
         ==================================================`);
+    }
 }
 
 // ArrowFunction para Listar todas las tareas
@@ -128,6 +138,29 @@ const filterCompleted = () => {
     }
 }
 
+// Simular guardado en una BD
+const saveToDB = (): Promise<void> => {
+    // Animación para el tiempo de guardado
+    const frames: string[] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    let r: number = 1
+    console.clear()
+    const louder = setInterval(() => {
+        process.stdout.write(`\r               ${frames[r]} Guardando la tarea en la BD ...`)
+        r = (r + 1) % frames.length
+    }, 200);
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            clearInterval(louder)
+            console.clear()
+            console.log(`
+        ==================================================
+            => ✅ La tarea fue GUARDADA correctamente!
+        ==================================================`);
+            resolve()
+        }, 2000)
+    })
+}
+
 console.clear()
 while (ongoing) {
     let answer = await rl.question(`
@@ -150,7 +183,7 @@ while (ongoing) {
     switch (answer) {
         case '1':
             let task = await rl.question('      Ingrese el título de la tarea: ')
-            AddTask(task)
+            await AddTask(task)
             break;
         case '2':
             removeTask()
