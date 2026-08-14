@@ -33,7 +33,7 @@ const AddTask = async (title: string) => {
                 'completed': false
             })
             console.clear()
-            await saveToDB()
+            await saveToDB('GUARDADA')
         } else {
             throw new Error('¡No ingreso ninguna tarea!')
         }
@@ -65,19 +65,25 @@ const listTasks = (): void => {
 }
 
 // ArrowFunction para Eliminar la última tarea
-const removeTask = (): void => {
-    if (tasks.length === 0) {
+const removeTask = async (id: number): Promise<void> => {
+    interface Ids {
+        id: number;
+        idArray: number;
+    }
+    const indexTask: number = tasks.findIndex((task) => task.id === id)
+    try {
+        if (indexTask >= 0) {
+            tasks.splice(indexTask, 1)
+            console.clear()
+            await saveToDB('ELIMINADA')
+        } else {
+            throw new Error('¡El ID ingresado no es válido!')
+        }
+    } catch (e) {
+        console.clear()
         console.log(`
         ==================================================
-            => NO EXISTEN TAREAS para ELIMINAR!!!
-        ==================================================`)
-    } else {
-        const delTask: Task = tasks.pop()!
-        const { id, title, completed } = delTask;
-        console.log(`
-        ==================================================
-            [${id}] ${title} - ${completed ? 'Completed' : 'Pending'}
-                    ¡Esta tarea, Fue ELIMINADA!
+               ❌ ${e}
         ==================================================`);
     }
 }
@@ -139,13 +145,13 @@ const filterCompleted = () => {
 }
 
 // Simular guardado en una BD
-const saveToDB = (): Promise<void> => {
+const saveToDB = (txt: string): Promise<void> => {
     // Animación para el tiempo de guardado
     const frames: string[] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
     let r: number = 1
     console.clear()
     const louder = setInterval(() => {
-        process.stdout.write(`\r               ${frames[r]} Guardando la tarea en la BD ...`)
+        process.stdout.write(`\r               ${frames[r]} Actualizando la tarea en la BD ...`)
         r = (r + 1) % frames.length
     }, 200);
     return new Promise((resolve) => {
@@ -154,7 +160,7 @@ const saveToDB = (): Promise<void> => {
             console.clear()
             console.log(`
         ==================================================
-            => ✅ La tarea fue GUARDADA correctamente!
+            => ✅ La tarea fue ${txt} correctamente!
         ==================================================`);
             resolve()
         }, 2000)
@@ -171,7 +177,7 @@ while (ongoing) {
 
         Seleccione una opción:
         [1]  Agregar tarea
-        [2]  Eliminar última tarea
+        [2]  Eliminar tarea
         [3]  Ver tareas
         [4]  Completar tarea
         [5]  Listar pendientes
@@ -186,7 +192,9 @@ while (ongoing) {
             await AddTask(task)
             break;
         case '2':
-            removeTask()
+            let idDelete = await rl.question('      Ingrese el ID de la tarea a Eliminar: ')
+            let idDNumber = Number(idDelete)
+            await removeTask(idDNumber)
             break;
         case '3':
             listTasks()
